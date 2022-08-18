@@ -4,13 +4,21 @@ import { flatPath, generatePath } from './pathHandler'
 
 export interface ImgConfig<T> {
   toWebp: boolean
+  useWidthRatio: boolean
+  widthRatio: T
   width: T
   quality: T
 }
 
 function correctConfig(config: ImgConfig<number>, oriWidth: number) {
+  config.widthRatio = clamp(config.widthRatio, 0, 1)
+
+  config.width = Math.round(
+    config.useWidthRatio ? oriWidth * config.widthRatio : config.width,
+  )
   config.width =
     config.width === 0 || config.width > oriWidth ? oriWidth : config.width
+
   config.quality = clamp(config.quality, 10, 100)
 }
 
@@ -53,7 +61,13 @@ export async function handleImage(filePath: string, config: ImgConfig<number>) {
 
 export async function handleImages(
   paths: string[],
-  config: ImgConfig<number> = { toWebp: false, width: 0, quality: 100 },
+  config: ImgConfig<number> = {
+    toWebp: false,
+    useWidthRatio: false,
+    width: 0,
+    widthRatio: 0,
+    quality: 100,
+  },
 ) {
   const finalPaths = flatPath(paths)
 

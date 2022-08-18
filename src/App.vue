@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import 'uno.css'
 
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { ipcRenderer, type OpenDialogOptions } from 'electron'
-import { type ImgConfig } from '../electron/utils/file'
+import { type ImgConfig } from '../electron/core'
 import { OPEN_FILE, DROP_FILE, events } from '../electron/utils/eventsName'
 
 export interface DialogConfig {
@@ -20,11 +20,21 @@ export interface DropConfig {
 
 const isSettingsShow = ref(true)
 
-const imgConfig = reactive<ImgConfig<string>>({
+const oriImgConfig = reactive<ImgConfig<string>>({
   toWebp: false,
+  useWidthRatio: false,
   width: '0',
+  widthRatio: '0',
   quality: '100',
 })
+
+const imgConfig = computed(() => ({
+  useWidthRatio: oriImgConfig.useWidthRatio,
+  toWebp: oriImgConfig.toWebp,
+  width: Number(oriImgConfig.width),
+  quality: Number(oriImgConfig.quality),
+  widthRatio: Number(oriImgConfig.widthRatio),
+}))
 
 const onClick = async () => {
   const openFileData: {
@@ -35,11 +45,7 @@ const onClick = async () => {
         title: 'Choose File',
         properties: ['openFile', 'openDirectory', 'multiSelections'],
       },
-      img: {
-        toWebp: imgConfig.toWebp,
-        width: Number(imgConfig.width),
-        quality: Number(imgConfig.quality),
-      },
+      img: imgConfig.value,
     },
   }
 
@@ -54,11 +60,7 @@ const onDrop = (e: DragEvent) => {
       drop: {
         filePaths: Array.from(e.dataTransfer!.files).map((file) => file.path),
       },
-      img: {
-        toWebp: imgConfig.toWebp,
-        width: Number(imgConfig.width),
-        quality: Number(imgConfig.quality),
-      },
+      img: imgConfig.value,
     },
   }
 
@@ -89,15 +91,23 @@ const openSettings = () => {
     <div flex class="settings-wrapper" v-show="isSettingsShow">
       <div flex class="quality input-wrapper">
         <label>Quality</label>
-        <input v-model="imgConfig.quality" />
+        <input v-model="oriImgConfig.quality" />
       </div>
       <div flex class="width input-wrapper">
         <label>Width</label>
-        <input v-model="imgConfig.width" />
+        <input v-model="oriImgConfig.width" />
+      </div>
+      <div flex class="ratio input-wrapper">
+        <label>WidthRatio</label>
+        <input v-model="oriImgConfig.widthRatio" />
+      </div>
+      <div flex class="useRatio input-wrapper">
+        <label>UseWidthRatio</label>
+        <input type="checkbox" v-model="oriImgConfig.useWidthRatio" />
       </div>
       <div flex class="webp input-wrapper">
         <label>ToWebp</label>
-        <input type="checkbox" v-model="imgConfig.toWebp" />
+        <input type="checkbox" v-model="oriImgConfig.toWebp" />
       </div>
     </div>
   </div>
