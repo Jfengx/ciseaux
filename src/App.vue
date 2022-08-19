@@ -72,50 +72,123 @@ const openSettings = () => {
 }
 </script>
 
-<template>
-  <div class="select-area" f-ca flex-col rel w-100vw h-100vh>
-    <div
-      class="area"
-      flex-shrink-0
-      @click="onClick"
-      @drop="onDrop"
-      @dragover="(e) => e.preventDefault()"
-    ></div>
+<template lang="pug">
+.select-area(f-ca flex-col rel)
+  .area(
+    cursor-pointer 
+    :class="isSettingsShow ? 'active' : ''" 
+    @click="onClick"
+    @drop="onDrop"
+    @dragover="(e) => e.preventDefault()"
+  )
+  .settings(
+    cursor-pointer 
+    i-carbon-settings
+    :class="[isSettingsShow ? 'active' : '', 'rel']"
+    @click="openSettings"
+  )
+  .settings-wrapper(
+    flex
+    :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs']"
+  )
+    .quality.input-wrapper(flex)
+      label quality
+      input(v-model='oriImgConfig.quality')
+    .width.input-wrapper(flex)
+      label width
+      input(v-model='oriImgConfig.width')
+    .ratio.input-wrapper(flex)
+      label widthRatio
+      input(v-model='oriImgConfig.widthRatio')
+    .use-ratio.input-wrapper(flex)
+      label useWidthRatio
+      input(type='checkbox' v-model='oriImgConfig.useWidthRatio')
+    .webp.input-wrapper(flex)
+      label toWebp
+      input(type='checkbox' v-model='oriImgConfig.toWebp')
 
-    <div
-      i-carbon-settings
-      rel
-      :class="['settings', isSettingsShow ? 'active' : '']"
-      @click="openSettings"
-    ></div>
-    <div flex class="settings-wrapper" v-show="isSettingsShow">
-      <div flex class="quality input-wrapper">
-        <label>Quality</label>
-        <input v-model="oriImgConfig.quality" />
-      </div>
-      <div flex class="width input-wrapper">
-        <label>Width</label>
-        <input v-model="oriImgConfig.width" />
-      </div>
-      <div flex class="ratio input-wrapper">
-        <label>WidthRatio</label>
-        <input v-model="oriImgConfig.widthRatio" />
-      </div>
-      <div flex class="useRatio input-wrapper">
-        <label>UseWidthRatio</label>
-        <input type="checkbox" v-model="oriImgConfig.useWidthRatio" />
-      </div>
-      <div flex class="webp input-wrapper">
-        <label>ToWebp</label>
-        <input type="checkbox" v-model="oriImgConfig.toWebp" />
-      </div>
-    </div>
-  </div>
 </template>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-}
+<style lang="stylus">
+*
+  margin 0
+  padding 0
+
+.select-area
+  width 100vw
+  height 100vh
+  overflow hidden
+
+  .area
+    width 88vw
+    height 75vh
+    border 1px dashed #af97fe
+    // box-shadow #af97fe 0px 8px 24px
+    border-radius 0.5rem
+    margin-top 2.5rem
+    transform-origin top
+    transition transform 0.3s
+    z-index 1
+
+    &.active
+      transform scale(0.95)
+
+  .settings
+    width 5.5vh
+    height 5.5vh
+    margin-top 2.5vh
+    border-radius 50%
+    color #6e5276
+    opacity 0.6
+    transition: transform 0.3s, opacity 0.3s
+    z-index 3
+
+    &.active
+      transform rotate(90deg)
+      opacity 1
+
+    &:hover
+      opacity 1
+
+  .settings-wrapper
+    z-index 2
+    left 6vw
+    bottom calc(23vh - 2.5rem)
+    width 88vw
+    height 60vh
+    border-radius 0.5rem
+    background white
+    border 1px dashed rgba(254, 114, 226, 0.5)
+    font-size 0.8rem
+    flex-direction column
+    text-align left
+    opacity 0
+    transform translateY(20%)
+    transition transform 0.3s, opacity 0.15s
+    pointer-events none
+
+    &.active
+      pointer-events unset
+      transform translateY(0)
+      opacity 1
+
+    .input-wrapper
+      margin-bottom 0.3rem
+      width 10rem
+      color alpha(#000, 0.9)
+
+      label
+        width 6rem
+        text-align left
+
+      input
+        width 4rem
+        outline none
+        padding 0 0.2rem
+        border-radius 0.2rem
+        border 1px solid alpha(#000, 0.2)
+        color alpha(#000, 0.6)
+
+      input[type='checkbox']
+        transform scale(0.7)
 </style>

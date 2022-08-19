@@ -1,7 +1,7 @@
 {
   "name": "ciseaux",
   "productName": "Ciseaux",
-  "version": "0.0.0",
+  "version": "0.0.0-alpha",
   "main": "dist/electron/main/index.js",
   "description": "Resize & Compress Image",
   "author": "Jef <jiafxi@gmail.com>",
@@ -16,6 +16,8 @@
     "@vitejs/plugin-vue": "^3.0.1",
     "electron": "^20.0.2",
     "electron-builder": "^23.3.3",
+    "pug": "^3.0.2",
+    "stylus": "^0.59.0",
     "typescript": "^4.7.4",
     "unocss": "^0.45.6",
     "vite": "^3.0.5",
