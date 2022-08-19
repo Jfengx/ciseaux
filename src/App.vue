@@ -18,7 +18,7 @@ export interface DropConfig {
   img: ImgConfig<number>
 }
 
-const isSettingsShow = ref(true)
+const isSettingsShow = ref(false)
 
 const oriImgConfig = reactive<ImgConfig<string>>({
   toWebp: false,
@@ -73,37 +73,34 @@ const openSettings = () => {
 </script>
 
 <template lang="pug">
-.select-area(f-ca flex-col rel)
+.select-area(class='f-ca flex-col rel')
   .area(
-    cursor-pointer 
-    :class="isSettingsShow ? 'active' : ''" 
+    :class="[isSettingsShow ? 'active' : '', 'cursor-pointer']" 
     @click="onClick"
     @drop="onDrop"
     @dragover="(e) => e.preventDefault()"
   )
   .settings(
-    cursor-pointer 
     i-carbon-settings
-    :class="[isSettingsShow ? 'active' : '', 'rel']"
+    :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
     @click="openSettings"
   )
   .settings-wrapper(
-    flex
-    :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs']"
+    :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs', 'flex']"
   )
-    .quality.input-wrapper(flex)
+    .quality.input-wrapper.flex
       label quality
       input(v-model='oriImgConfig.quality')
-    .width.input-wrapper(flex)
+    .width.input-wrapper.flex
       label width
       input(v-model='oriImgConfig.width')
-    .ratio.input-wrapper(flex)
+    .ratio.input-wrapper.flex
       label widthRatio
       input(v-model='oriImgConfig.widthRatio')
-    .use-ratio.input-wrapper(flex)
+    .use-ratio.input-wrapper.flex
       label useWidthRatio
       input(type='checkbox' v-model='oriImgConfig.useWidthRatio')
-    .webp.input-wrapper(flex)
+    .webp.input-wrapper.flex
       label toWebp
       input(type='checkbox' v-model='oriImgConfig.toWebp')
 
