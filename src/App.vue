@@ -18,6 +18,7 @@ export interface DropConfig {
   img: ImgConfig<number>
 }
 
+const type = ref('Image')
 const isSettingsShow = ref(false)
 
 const oriImgConfig = reactive<ImgConfig<string>>({
@@ -75,13 +76,14 @@ const openSettings = () => {
 <template lang="pug">
 .select-area(class='f-ca flex-col rel')
   .area(
-    :class="[isSettingsShow ? 'active' : '', 'cursor-pointer']" 
+    :class="[isSettingsShow ? 'active' : '', 'cursor-pointer', 'f-c', 'rel']" 
     @click="onClick"
     @drop="onDrop"
     @dragover="(e) => e.preventDefault()"
-  )
+  ) 
+    p {{ type }}
+    p.options(class='abs') Drag or Click
   .settings(
-    i-carbon-settings
     :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
     @click="openSettings"
   )
@@ -89,27 +91,31 @@ const openSettings = () => {
     :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs', 'flex']"
   )
     .quality.input-wrapper.flex
-      label quality
+      label Quality
       input(v-model='oriImgConfig.quality')
     .width.input-wrapper.flex
-      label width
+      label Width
       input(v-model='oriImgConfig.width')
     .ratio.input-wrapper.flex
-      label widthRatio
+      label WidthRatio
       input(v-model='oriImgConfig.widthRatio')
     .use-ratio.input-wrapper.flex
-      label useWidthRatio
+      label UseWidthRatio
       input(type='checkbox' v-model='oriImgConfig.useWidthRatio')
     .webp.input-wrapper.flex
-      label toWebp
+      label ToWebp
       input(type='checkbox' v-model='oriImgConfig.toWebp')
 
 </template>
 
 <style lang="stylus">
+$color0 = #e45b28
+$color1 = #132a5c
+
 *
   margin 0
   padding 0
+  font-family pixel-f
 
 .select-area
   width 100vw
@@ -119,13 +125,26 @@ const openSettings = () => {
   .area
     width 88vw
     height 75vh
-    border 1px dashed #af97fe
+    border 1px dashed $color0
+    color alpha($color1, 0.8)
     // box-shadow #af97fe 0px 8px 24px
     border-radius 0.5rem
     margin-top 2.5rem
     transform-origin top
     transition transform 0.3s
+    flex-direction column
+    text-align center
     z-index 1
+
+    .options
+      font-size .75rem
+      bottom 0.8rem
+      left 50%
+      transform translateX(-50%)
+
+    p
+      &:first-child
+        font-size 5rem
 
     &.active
       transform scale(0.95)
@@ -135,7 +154,7 @@ const openSettings = () => {
     height 5.5vh
     margin-top 2.5vh
     border-radius 50%
-    color #6e5276
+    color #e45b28
     opacity 0.6
     transition: transform 0.3s, opacity 0.3s
     z-index 3
@@ -155,7 +174,8 @@ const openSettings = () => {
     height 60vh
     border-radius 0.5rem
     background white
-    border 1px dashed rgba(254, 114, 226, 0.5)
+    border 1px dashed $color1
+    color alpha($color0, 0.8)
     font-size 0.8rem
     flex-direction column
     text-align left
@@ -172,7 +192,7 @@ const openSettings = () => {
     .input-wrapper
       margin-bottom 0.3rem
       width 10rem
-      color alpha(#000, 0.9)
+
 
       label
         width 6rem
@@ -188,4 +208,8 @@ const openSettings = () => {
 
       input[type='checkbox']
         transform scale(0.7)
+
+@font-face
+  font-family pixel-f
+  src url('./src/assets/ark-pixel-12px-zh_cn.woff2')
 </style>
