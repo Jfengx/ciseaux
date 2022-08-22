@@ -283,5 +283,5 @@ $color1 = #132a5c
 
 @font-face
   font-family pixel-f
-  src url('./src/assets/ark-pixel-12px-zh_cn.woff2')
+  src url('../public/ark-pixel-12px-zh_cn.woff2')
 </style>
