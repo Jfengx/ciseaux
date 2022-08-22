@@ -18,14 +18,16 @@ export interface DropConfig {
   img: ImgConfig<number>
 }
 
-const type = ref('Image')
+type TYPE = 'Image' | 'Video'
+
+const type = ref<TYPE>('Image')
 const isSettingsShow = ref(false)
 
 const oriImgConfig = reactive<ImgConfig<string>>({
   toWebp: false,
   useWidthRatio: false,
-  width: '0',
-  widthRatio: '0',
+  width: '',
+  widthRatio: '',
   quality: '100',
 })
 
@@ -83,13 +85,18 @@ const openSettings = () => {
   ) 
     p {{ type }}
     p.options(class='abs') Drag or Click
-  .settings(
-    :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
-    @click="openSettings"
-  )
+
+  .settings(class='rel flex')
+    .image(:class="['i-carbon-image', type === 'Image' ? 'active' : '']" @click="type = 'Image'")
+    .config(
+      :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
+      @click="openSettings"
+    )
+    //- .video(:class="['i-carbon-video', type === 'Video' ? 'active' : '']" @click="type = 'Video'")
+    
   .settings-wrapper(
     :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs', 'flex']"
-  )
+  ) 
     .quality.input-wrapper.flex
       label Quality
       input(v-model='oriImgConfig.quality')
@@ -150,21 +157,28 @@ $color1 = #132a5c
       transform scale(0.95)
 
   .settings
-    width 5.5vh
-    height 5.5vh
     margin-top 2.5vh
-    border-radius 50%
-    color #e45b28
-    opacity 0.6
-    transition: transform 0.3s, opacity 0.3s
-    z-index 3
 
-    &.active
-      transform rotate(90deg)
-      opacity 1
+    & > *
+      width 5.5vh
+      height 5.5vh
+      color $color0
+      opacity 0.4
+      transition transform 0.3s, opacity 0.3s
+      z-index 3
 
-    &:hover
-      opacity 1
+      &.active
+        opacity 1
+
+    .config
+      margin 0 .5rem
+      opacity 0.6
+
+      &.active
+        transform rotate(90deg)
+
+      &:hover
+        opacity 1
 
   .settings-wrapper
     z-index 2
