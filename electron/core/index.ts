@@ -1,2 +1,3 @@
-export * from './imageHandler'
-export * from './pathHandler'
+export * from './file'
+export * from './image'
+export * from './video'

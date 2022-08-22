@@ -3,19 +3,24 @@ import 'uno.css'
 
 import { reactive, ref, computed } from 'vue'
 import { ipcRenderer, type OpenDialogOptions } from 'electron'
-import { type ImgConfig } from '../electron/core'
+import {
+  type ImgConfig,
+  type FileType,
+  type FileConfig,
+  type VideoConfig,
+} from '../electron/core'
 import { OPEN_FILE, DROP_FILE, events } from '../electron/utils/eventsName'
 
 export interface DialogConfig {
   dialog: OpenDialogOptions
-  img: ImgConfig<number>
+  file: FileConfig
 }
 
 export interface DropConfig {
   drop: {
     filePaths: string[]
   }
-  img: ImgConfig<number>
+  file: FileConfig
 }
 
 type TYPE = 'Image' | 'Video'
@@ -31,6 +36,12 @@ const oriImgConfig = reactive<ImgConfig<string>>({
   quality: '100',
 })
 
+const oriVideoConfig = reactive<VideoConfig<string>>({
+  bitRate: '1500',
+  quiet: false,
+  format: '.mp4',
+})
+
 const imgConfig = computed(() => ({
   useWidthRatio: oriImgConfig.useWidthRatio,
   toWebp: oriImgConfig.toWebp,
@@ -39,16 +50,24 @@ const imgConfig = computed(() => ({
   widthRatio: Number(oriImgConfig.widthRatio),
 }))
 
+const videoConfig = computed(() => ({
+  bitRate: Number(oriVideoConfig.bitRate),
+  quiet: oriVideoConfig.quiet,
+  format: oriVideoConfig.format,
+}))
+
 const onClick = async () => {
   const openFileData: {
+    type: FileType
     config: DialogConfig
   } = {
+    type: type.value,
     config: {
       dialog: {
         title: 'Choose File',
         properties: ['openFile', 'openDirectory', 'multiSelections'],
       },
-      img: imgConfig.value,
+      file: type.value === 'Image' ? imgConfig.value : videoConfig.value,
     },
   }
 
@@ -58,12 +77,13 @@ const onClick = async () => {
 const onDrop = (e: DragEvent) => {
   e.preventDefault()
 
-  const dropFileData: { config: DropConfig } = {
+  const dropFileData: { type: FileType; config: DropConfig } = {
+    type: type.value,
     config: {
       drop: {
         filePaths: Array.from(e.dataTransfer!.files).map((file) => file.path),
       },
-      img: imgConfig.value,
+      file: type.value === 'Image' ? imgConfig.value : videoConfig.value,
     },
   }
 
@@ -92,26 +112,40 @@ const openSettings = () => {
       :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
       @click="openSettings"
     )
-    //- .video(:class="['i-carbon-video', type === 'Video' ? 'active' : '']" @click="type = 'Video'")
+    .video(:class="['i-carbon-video', type === 'Video' ? 'active' : '']" @click="type = 'Video'")
     
   .settings-wrapper(
-    :class="[isSettingsShow ? 'active' : '', 'f-c', 'abs', 'flex']"
+    :class="[isSettingsShow ? 'active' : '', 'abs']"
   ) 
-    .quality.input-wrapper.flex
-      label Quality
-      input(v-model='oriImgConfig.quality')
-    .width.input-wrapper.flex
-      label Width
-      input(v-model='oriImgConfig.width')
-    .ratio.input-wrapper.flex
-      label WidthRatio
-      input(v-model='oriImgConfig.widthRatio')
-    .use-ratio.input-wrapper.flex
-      label UseWidthRatio
-      input(type='checkbox' v-model='oriImgConfig.useWidthRatio')
-    .webp.input-wrapper.flex
-      label ToWebp
-      input(type='checkbox' v-model='oriImgConfig.toWebp')
+    .image-settings(v-show="type == 'Image'" class='rel')
+      .content(class='flex f-c')
+        .quality.input-wrapper.flex
+          label Quality
+          input(v-model='oriImgConfig.quality')
+        .width.input-wrapper.flex
+          label Width
+          input(v-model='oriImgConfig.width')
+        .ratio.input-wrapper.flex
+          label WidthRatio
+          input(v-model='oriImgConfig.widthRatio')
+        .use-ratio.input-wrapper.flex
+          label UseWidthRatio
+          input(type='checkbox' v-model='oriImgConfig.useWidthRatio')
+        .webp.input-wrapper.flex
+          label ToWebp
+          input(type='checkbox' v-model='oriImgConfig.toWebp')
+
+    .video-settings.rel(v-show="type == 'Video'")
+      .content.flex.f-c
+        .bitrate.input-wrapper.flex
+          label Bitrate
+          input(v-model='oriVideoConfig.bitRate')
+        .format.input-wrapper.flex
+          label Format
+          input(v-model='oriVideoConfig.format')
+        .quiet.input-wrapper.flex
+          label Quiet
+          input(type='checkbox' v-model='oriVideoConfig.quiet')
 
 </template>
 
@@ -191,12 +225,19 @@ $color1 = #132a5c
     border 1px dashed $color1
     color alpha($color0, 0.8)
     font-size 0.8rem
-    flex-direction column
-    text-align left
     opacity 0
     transform translateY(20%)
     transition transform 0.3s, opacity 0.15s
     pointer-events none
+
+    & > *
+      width 100%
+      height 100%
+      .content
+        width 100%
+        height 100%
+        flex-direction column
+        text-align left
 
     &.active
       pointer-events unset

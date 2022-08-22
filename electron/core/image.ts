@@ -1,8 +1,8 @@
 import Sharp from 'sharp'
 import { clamp } from '../utils'
-import { flatPath, generatePath } from './pathHandler'
+import { generatePath } from './paths'
 
-export interface ImgConfig<T> {
+export interface ImgConfig<T extends Number | String> {
   toWebp: boolean
   useWidthRatio: boolean
   widthRatio: T
@@ -22,7 +22,16 @@ function correctConfig(config: ImgConfig<number>, oriWidth: number) {
   config.quality = clamp(config.quality, 10, 100)
 }
 
-export async function handleImage(filePath: string, config: ImgConfig<number>) {
+export async function handleImage(
+  filePath: string,
+  config: ImgConfig<number> = {
+    toWebp: false,
+    useWidthRatio: false,
+    width: 0,
+    widthRatio: 0,
+    quality: 100,
+  },
+) {
   const oriImg = Sharp(filePath)
   let img = oriImg.clone()
 
@@ -31,10 +40,10 @@ export async function handleImage(filePath: string, config: ImgConfig<number>) {
 
     correctConfig(config, metadata.width!)
 
-    const { path: newPath, format } = generatePath(filePath, config)
+    const { path: newPath, resolver } = generatePath(filePath, config, 'Image')
 
     // TODO: more options ?
-    switch (format) {
+    switch (resolver.ext) {
       case '.jpg':
       case '.jpeg':
         img = oriImg.jpeg({ quality: config.quality })
@@ -56,22 +65,5 @@ export async function handleImage(filePath: string, config: ImgConfig<number>) {
   } catch (e) {
     // TODO: error handle
     console.log(e)
-  }
-}
-
-export async function handleImages(
-  paths: string[],
-  config: ImgConfig<number> = {
-    toWebp: false,
-    useWidthRatio: false,
-    width: 0,
-    widthRatio: 0,
-    quality: 100,
-  },
-) {
-  const finalPaths = flatPath(paths)
-
-  for (let i = 0; i < finalPaths.length; i++) {
-    handleImage(finalPaths[i], config)
   }
 }
