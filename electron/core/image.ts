@@ -1,17 +1,21 @@
 import Sharp from 'sharp'
-import { clamp } from '../utils'
+import { clamp, imgRange } from '../utils'
 import { generatePath } from './paths'
 
-export interface ImgConfig<T extends Number | String> {
+export interface ImgConfig {
   toWebp: boolean
   useWidthRatio: boolean
-  widthRatio: T
-  width: T
-  quality: T
+  widthRatio: number
+  width: number
+  quality: number
 }
 
-function correctConfig(config: ImgConfig<number>, oriWidth: number) {
-  config.widthRatio = clamp(config.widthRatio, 0, 1)
+function correctConfig(config: ImgConfig, oriWidth: number) {
+  config.widthRatio = clamp(
+    config.widthRatio,
+    imgRange.ratio[0],
+    imgRange.ratio[1],
+  )
 
   config.width = Math.round(
     config.useWidthRatio ? oriWidth * config.widthRatio : config.width,
@@ -19,12 +23,16 @@ function correctConfig(config: ImgConfig<number>, oriWidth: number) {
   config.width =
     config.width === 0 || config.width > oriWidth ? oriWidth : config.width
 
-  config.quality = clamp(config.quality, 10, 100)
+  config.quality = clamp(
+    config.quality,
+    imgRange.quality[0],
+    imgRange.quality[1],
+  )
 }
 
 export async function handleImage(
   filePath: string,
-  config: ImgConfig<number> = {
+  config: ImgConfig = {
     toWebp: false,
     useWidthRatio: false,
     width: 0,

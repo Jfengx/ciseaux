@@ -1,28 +1,38 @@
 import fs from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 import { generatePath } from './paths'
-import { clamp } from '../utils'
+import { clamp, videoRange } from '../utils'
 
-export interface VideoConfig<T extends Number | String> {
-  bitRate: T
+export interface VideoConfig {
+  bitRate: number
+  fps: number
+  ratio: number
   quiet: boolean
-  format: '.mp4'
+  toMp4: boolean
 }
 
 const ffmpeg = createFFmpeg({
   log: true,
 })
 
-function correctConfig(config: VideoConfig<number>) {
-  config.bitRate = clamp(config.bitRate, 100, 100000)
+function correctConfig(config: VideoConfig) {
+  config.bitRate = clamp(
+    config.bitRate,
+    videoRange.bitRate[0],
+    videoRange.bitRate[1],
+  )
+  config.fps = clamp(config.fps, videoRange.fps[0], videoRange.fps[1])
+  config.ratio = clamp(config.ratio, videoRange.ratio[0], videoRange.ratio[1])
 }
 
 export async function handleVideo(
   filePath: string,
-  config: VideoConfig<number> = {
+  config: VideoConfig = {
     bitRate: 1500,
+    ratio: 1,
     quiet: false,
-    format: '.mp4',
+    toMp4: false,
+    fps: 20,
   },
 ) {
   correctConfig(config)
@@ -36,14 +46,22 @@ export async function handleVideo(
     const oriName = resolver.name.split('.')[0]
     const transName = oriName + resolver.ext
 
-    const args: string[] = [
+    const args = [
+      // bitrate
       '-b:v',
       `${config.bitRate}k`,
       '-minrate',
       `${config.bitRate}k`,
       '-maxrate',
       `${config.bitRate}k`,
+      // quiet
       config.quiet ? '-an' : '',
+      // fps
+      '-r',
+      config.fps.toString(),
+      // scale
+      '-vf',
+      `scale=ceil(iw*${config.ratio}/2)*2:ceil(ih*${config.ratio}/2)*2`,
     ].filter((v) => !!v)
 
     ffmpeg.FS('writeFile', oriName, await fetchFile(filePath))

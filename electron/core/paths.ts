@@ -47,7 +47,7 @@ export function generatePath(
   const resolver = path.parse(oriPath)
 
   if (fileType === 'Image') {
-    const c = <ImgConfig<number>>config
+    const c = <ImgConfig>config
     const postfix = `.w${c.width}q${c.quality}`
 
     resolver.ext = c.toWebp ? '.webp' : resolver.ext
@@ -56,8 +56,8 @@ export function generatePath(
   }
 
   if (fileType === 'Video') {
-    const c = <VideoConfig<number>>config
-    resolver.ext = c.format ?? resolver.ext
+    const c = <VideoConfig>config
+    resolver.ext = c.toMp4 ? '.mp4' : resolver.ext
     resolver.name = `${resolver.name}.min`
     resolver.base = `${resolver.name}${resolver.ext}`
   }

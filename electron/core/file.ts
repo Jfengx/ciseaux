@@ -4,7 +4,7 @@ import { flatPath } from './paths'
 
 export type FileType = 'Image' | 'Video'
 
-export type FileConfig = ImgConfig<number> | VideoConfig<number>
+export type FileConfig = ImgConfig | VideoConfig
 
 export function exec(paths: string[], config: FileConfig, fileType: FileType) {
   const p = flatPath(paths, fileType)
@@ -12,11 +12,11 @@ export function exec(paths: string[], config: FileConfig, fileType: FileType) {
 
   for (let i = 0; i < p.length; i++) {
     if (fileType === 'Image') {
-      handleImage(p[i], <ImgConfig<number>>config)
+      handleImage(p[i], <ImgConfig>config)
     }
 
     if (fileType === 'Video') {
-      handleVideo(p[i], <VideoConfig<number>>config)
+      handleVideo(p[i], <VideoConfig>config)
     }
   }
 }

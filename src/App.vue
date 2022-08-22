@@ -28,18 +28,20 @@ type TYPE = 'Image' | 'Video'
 const type = ref<TYPE>('Image')
 const isSettingsShow = ref(false)
 
-const oriImgConfig = reactive<ImgConfig<string>>({
+const oriImgConfig = reactive<ImgConfig>({
   toWebp: false,
   useWidthRatio: false,
-  width: '',
-  widthRatio: '',
-  quality: '100',
+  width: 0,
+  widthRatio: 0,
+  quality: 100,
 })
 
-const oriVideoConfig = reactive<VideoConfig<string>>({
-  bitRate: '1500',
+const oriVideoConfig = reactive<VideoConfig>({
+  bitRate: 1500,
+  fps: 20,
   quiet: false,
-  format: '.mp4',
+  toMp4: true,
+  ratio: 1,
 })
 
 const imgConfig = computed(() => ({
@@ -52,8 +54,10 @@ const imgConfig = computed(() => ({
 
 const videoConfig = computed(() => ({
   bitRate: Number(oriVideoConfig.bitRate),
+  fps: Number(oriVideoConfig.fps),
+  ratio: Number(oriVideoConfig.ratio),
   quiet: oriVideoConfig.quiet,
-  format: oriVideoConfig.format,
+  toMp4: oriVideoConfig.toMp4,
 }))
 
 const onClick = async () => {
@@ -103,16 +107,16 @@ const openSettings = () => {
     @drop="onDrop"
     @dragover="(e) => e.preventDefault()"
   ) 
-    p {{ type }}
+    p.type {{ type }}
     p.options(class='abs') Drag or Click
 
   .settings(class='rel flex')
-    .image(:class="['i-carbon-image', type === 'Image' ? 'active' : '']" @click="type = 'Image'")
+    .image(:class="['i-carbon-image', type === 'Image' ? 'active' : '', 'cursor-pointer']" @click="type = 'Image'")
     .config(
-      :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer ']"
+      :class="[isSettingsShow ? 'active' : '', 'rel', 'i-carbon-settings', 'cursor-pointer']"
       @click="openSettings"
     )
-    .video(:class="['i-carbon-video', type === 'Video' ? 'active' : '']" @click="type = 'Video'")
+    .video(:class="['i-carbon-video', type === 'Video' ? 'active' : '', 'cursor-pointer']" @click="type = 'Video'")
     
   .settings-wrapper(
     :class="[isSettingsShow ? 'active' : '', 'abs']"
@@ -140,9 +144,15 @@ const openSettings = () => {
         .bitrate.input-wrapper.flex
           label Bitrate
           input(v-model='oriVideoConfig.bitRate')
+        .ratio.input-wrapper.flex
+          label Ratio
+          input(v-model='oriVideoConfig.ratio')
+        .fps.input-wrapper.flex
+          label Fps
+          input(v-model='oriVideoConfig.fps')
         .format.input-wrapper.flex
-          label Format
-          input(v-model='oriVideoConfig.format')
+          label ToMp4
+          input(type='checkbox' v-model='oriVideoConfig.toMp4')
         .quiet.input-wrapper.flex
           label Quiet
           input(type='checkbox' v-model='oriVideoConfig.quiet')
@@ -177,6 +187,9 @@ $color1 = #132a5c
     text-align center
     z-index 1
 
+    .type
+      transition transform 0.25s ease
+
     .options
       font-size .75rem
       bottom 0.8rem
@@ -189,6 +202,10 @@ $color1 = #132a5c
 
     &.active
       transform scale(0.95)
+
+      .type
+        transform-origin 50% -100%
+        transform scale(0.25)
 
   .settings
     margin-top 2.5vh
